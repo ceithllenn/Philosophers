@@ -6,23 +6,35 @@
 /*   By: elvallet <elvallet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/23 08:56:58 by elvallet          #+#    #+#             */
-/*   Updated: 2024/07/23 09:25:46 by elvallet         ###   ########.fr       */
+/*   Updated: 2024/07/26 17:41:59 by elvallet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/philo.h"
 
-void	free_split(void **data)
+void	free_philo(t_philo **philo)
 {
 	int	i;
 
 	i = 0;
-	while (data[i])
+	while (philo[i])
 	{
-		free(data[i]);
+		pthread_mutex_destroy(&(philo[i]->left_fork));
+		pthread_mutex_destroy(&(philo[i]->right_fork));
+		pthread_mutex_destroy(&(philo[i]->meal_lock));
+		free(philo[i]);
 		i++;
 	}
-	free(data);
+	free(philo);
+}
+
+size_t	get_current_time(void)
+{
+	struct timeval	time;
+
+	if (gettimeofday(&time, NULL) == -1)
+		write(2, "gettimeofday() error\n", 22);
+	return (time.tv_sec * 1000 + time.tv_usec / 1000);
 }
 
 int	ft_atoi(const char *nptr)

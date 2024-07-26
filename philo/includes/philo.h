@@ -6,7 +6,7 @@
 /*   By: elvallet <elvallet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/23 07:31:38 by elvallet          #+#    #+#             */
-/*   Updated: 2024/07/23 09:26:01 by elvallet         ###   ########.fr       */
+/*   Updated: 2024/07/26 18:34:47 by elvallet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,40 +19,58 @@
 # include <sys/time.h>
 # include <pthread.h>
 
-typedef struct s_fork
+typedef enum e_msg
 {
-	int				id;
-	int				fork;
-}				t_fork;
+	FORK_MESSAGE, EATING_MSG, SLEEPING_MSG, THINKING_MSG, DEAD_MSG
+}			t_msg;
 
 typedef struct s_philo
 {
-	int		id;
-	int		meals_eaten;
-	int		dead;
-	t_fork	*right;
-	t_fork	*left;	
+	pthread_t		thread;
+	int				id;
+	int				meals_eaten;
+	int				eating_rd;
+	size_t			start;
+	size_t			last_meal;
+	size_t			time_to_die;
+	size_t			time_to_eat;
+	size_t			time_to_sleep;
+	int				nb_philos;
+	int				meals_to_eat;
+	int				*dead;
+	pthread_mutex_t	*left_fork;
+	pthread_mutex_t	right_fork;
+	pthread_mutex_t	meal_lock;
 }				t_philo;
 
 typedef struct s_data
 {
-	int		nb_philo;
-	int		*dead;
-	int		time_to_die;
-	int		time_to_eat;
-	int		time_to_sleep;
-	int		meals_to_eat;
-	t_fork	**forks;
-	t_philo	**philos;	
+	pthread_t	monitoring;
+	int			dead_flag;
+	int			nb_philos;
+	size_t		start;
+	size_t		time_to_die;
+	size_t		time_to_eat;
+	size_t		time_to_sleep;
+	int			meals_to_eat;
+	t_philo		**philo;	
 }				t_data;
 
 /*INIT.C*/
-t_fork	**init_forks(t_data *data);
+t_philo	*get_philo(t_data *data, t_philo *philo);
 t_philo	**init_philos(t_data *data);
-int		init(int argc, char **argv);
+void	init(char **argv);
+
+/*PHILO_ROUTINE.C*/
+void	*philo_routine(t_philo *philo);
+void	eat(t_philo *philo);
+void	philo_sleep(t_philo *philo);
+int		is_alive(t_philo *philo);
+void	philo_message(t_philo *philo, t_msg msg);
 
 /*UTILS.C*/
-void	free_split(void **data);
+void	free_philo(t_philo **philo);
+size_t	get_current_time(void);
 int		ft_atoi(const char *nptr);
 
 #endif

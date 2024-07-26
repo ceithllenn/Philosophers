@@ -1,13 +1,15 @@
 NAME = philo
 
 CC = cc
-FLAGS = -Wall -Wextra -Werror -lm
+FLAGS = -Wall -Wextra -Werror
 INCLUDES = -I .
 
 SRCS_DIR = src/
 
 
-FUNC =	
+FUNC =	init.c \
+		philo_routine.c \
+		utils.c
 
 MAIN = main.c $(FUNC)
 
