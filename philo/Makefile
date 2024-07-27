@@ -1,13 +1,15 @@
 NAME = philo
 
 CC = cc
-FLAGS = -Wall -Wextra -Werror
+FLAGS = -Wall -Wextra -Werror -g3
 INCLUDES = -I .
 
 SRCS_DIR = src/
 
 
-FUNC =	init.c \
+FUNC =	exit.c \
+		init.c \
+		monitoring.c \
 		philo_routine.c \
 		utils.c
 
@@ -32,7 +34,8 @@ $(NAME): $(OBJS)
 	$(CC) $(FLAGS) $(OBJS) -o $(NAME)
 	
 # Clean object files
-clean:	rm -rf $(OBJS_DIR)
+clean: 
+	rm -rf $(OBJS_DIR)
 
 # Full clean
 fclean: clean

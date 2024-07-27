@@ -6,7 +6,7 @@
 /*   By: elvallet <elvallet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/23 08:56:58 by elvallet          #+#    #+#             */
-/*   Updated: 2024/07/26 17:41:59 by elvallet         ###   ########.fr       */
+/*   Updated: 2024/07/27 10:37:30 by elvallet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,9 +19,7 @@ void	free_philo(t_philo **philo)
 	i = 0;
 	while (philo[i])
 	{
-		pthread_mutex_destroy(&(philo[i]->left_fork));
 		pthread_mutex_destroy(&(philo[i]->right_fork));
-		pthread_mutex_destroy(&(philo[i]->meal_lock));
 		free(philo[i]);
 		i++;
 	}
