@@ -6,14 +6,19 @@
 /*   By: elvallet <elvallet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/26 17:43:40 by elvallet          #+#    #+#             */
-/*   Updated: 2024/07/27 11:27:57 by elvallet         ###   ########.fr       */
+/*   Updated: 2024/07/29 10:09:45 by elvallet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/philo.h"
 
-void	philo_routine(t_philo *philo)
+void	*philo_routine(void *arg)
 {
+	t_philo	*philo;
+
+	philo = (t_philo *)arg;
+	while (!philo->flag)
+		usleep(1);
 	while (!philo->dead)
 	{
 		if (philo->eating_rd == 1)
@@ -23,23 +28,34 @@ void	philo_routine(t_philo *philo)
 			if (!philo->eating_rd)
 				philo_message(philo, THINKING_MSG);
 		}
-		if (!philo->eating_rd)
+		else if (!philo->eating_rd && !philo->dead)
 			usleep(1);
+		if (philo->dead)
+			break ;
 	}
+	return (NULL);
 }
 
 void	eat(t_philo *philo)
 {
 	philo->eating_rd = 2;
 	philo->last_meal = get_current_time() - philo->start;
-	pthread_mutex_lock(&(philo->right_fork));
+	while (philo->right_fork.flag && !philo->dead)
+		usleep(1);
+	pthread_mutex_lock(&(philo->right_fork.mutex));
+	philo->right_fork.flag = 1;
 	philo_message(philo, FORK_MSG);
-	pthread_mutex_lock(philo->left_fork);
+	while (philo->left_fork->flag && !philo->dead)
+		usleep(1);
+	pthread_mutex_lock(&(philo->left_fork->mutex));
+	philo->left_fork->flag = 1;
 	philo_message(philo, FORK_MSG);
 	philo_message(philo, EATING_MSG);
 	usleep(philo->time_to_eat);
-	pthread_mutex_unlock(&(philo->right_fork));
-	pthread_mutex_unlock(philo->left_fork);
+	pthread_mutex_unlock(&(philo->right_fork.mutex));
+	philo->right_fork.flag = 0;
+	pthread_mutex_unlock(&(philo->left_fork->mutex));
+	philo->left_fork->flag = 1;
 	philo->meals_eaten++;
 	if (philo->meals_to_eat)
 	{

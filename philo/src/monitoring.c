@@ -6,35 +6,25 @@
 /*   By: elvallet <elvallet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/27 09:45:54 by elvallet          #+#    #+#             */
-/*   Updated: 2024/07/27 11:27:48 by elvallet         ###   ########.fr       */
+/*   Updated: 2024/07/29 09:52:37 by elvallet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/philo.h"
 
-void	start_simu(t_data *data)
+void	*monitoring(void *arg)
 {
-	int	i;
+	int		i;
+	t_data	*data;
 
-	i = 1;
-	while (i <= data->nb_philos)
-	{
-		philo_routine(data->philo[i]);
-		i++;
-	}
-	monitoring(data);
-}
-
-void	monitoring(t_data *data)
-{
-	int	i;
-
+	data = (t_data *)arg;
+	data->flag = 1;
 	while (!data->dead_flag)
 	{
-		i = 1;
-		while (i <= data->nb_philos)
+		i = 0;
+		while (i < data->nb_philos)
 		{
-			if (!is_alive(data->philo[i]))
+			if (!is_alive(data->philos[i]))
 			{
 				data->dead_flag = 1;
 				break ;
@@ -43,18 +33,19 @@ void	monitoring(t_data *data)
 		}
 		if (!data->dead_flag && data->meals_to_eat)
 		{
-			i = 1;
-			while (i <= data->nb_philos)
+			i = 0;
+			while (i < data->nb_philos)
 			{
-				if (!data->philo[i]->finished)
+				if (data->philos[i]->finished)
 					break ;
 				i++;
 			}
-			return (ft_exit(data));
+			return (NULL);
 		}
-		whos_eating(data);
+		if (!data->dead_flag)
+			whos_eating(data);
 	}
-	return (ft_exit(data));
+	return (NULL);
 }
 
 void	whos_eating(t_data *data)
@@ -63,20 +54,20 @@ void	whos_eating(t_data *data)
 	size_t	time_tmp;
 	int		id_tmp;
 
-	i = 1;
+	i = 0;
 	time_tmp = INT_MAX;
 	id_tmp = 0;
-	while (i <= data->nb_philos)
+	while (i < data->nb_philos)
 	{
-		if (!data->philo[i]->eating_rd && !data->philo[i]->finished)
+		if (!data->philos[i]->eating_rd && !data->philos[i]->finished && !data->dead_flag)
 		{
-			if ((get_current_time() - data->philo[i]->last_meal) < time_tmp)
+			if ((get_current_time() - data->philos[i]->last_meal) < time_tmp)
 			{
-				time_tmp = get_current_time() - data->philo[i]->last_meal;
-				id_tmp = data->philo[i]->id;
+				time_tmp = get_current_time() - data->philos[i]->last_meal;
+				id_tmp = i;
 			}
-			i++;
 		}
+		i++;
 	}
-	data->philo[id_tmp]->eating_rd = 1;
+	data->philos[id_tmp]->eating_rd = 1;
 }
