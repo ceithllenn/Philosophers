@@ -6,7 +6,7 @@
 /*   By: elvallet <elvallet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/27 09:45:54 by elvallet          #+#    #+#             */
-/*   Updated: 2024/07/29 09:52:37 by elvallet         ###   ########.fr       */
+/*   Updated: 2024/08/02 11:39:13 by elvallet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,34 +18,38 @@ void	*monitoring(void *arg)
 	t_data	*data;
 
 	data = (t_data *)arg;
-	data->flag = 1;
 	while (!data->dead_flag)
 	{
 		i = 0;
 		while (i < data->nb_philos)
 		{
 			if (!is_alive(data->philos[i]))
-			{
-				data->dead_flag = 1;
-				break ;
-			}
+				return (NULL);
 			i++;
 		}
 		if (!data->dead_flag && data->meals_to_eat)
 		{
-			i = 0;
-			while (i < data->nb_philos)
-			{
-				if (data->philos[i]->finished)
-					break ;
-				i++;
-			}
-			return (NULL);
+			if (is_finished(data))
+				return (NULL);
 		}
 		if (!data->dead_flag)
 			whos_eating(data);
 	}
 	return (NULL);
+}
+
+int	is_finished(t_data *data)
+{
+	int	i;
+	
+	i = 0;
+	while (i < data->nb_philos)
+	{
+		if (data->philos[i]->finished)
+			return (1);
+		i++;
+	}
+	return (0);
 }
 
 void	whos_eating(t_data *data)
@@ -59,7 +63,8 @@ void	whos_eating(t_data *data)
 	id_tmp = 0;
 	while (i < data->nb_philos)
 	{
-		if (!data->philos[i]->eating_rd && !data->philos[i]->finished && !data->dead_flag)
+		if (!data->philos[i]->eating_rd
+			&& !data->philos[i]->finished && !data->dead_flag)
 		{
 			if ((get_current_time() - data->philos[i]->last_meal) < time_tmp)
 			{

@@ -6,7 +6,7 @@
 /*   By: elvallet <elvallet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/23 07:31:38 by elvallet          #+#    #+#             */
-/*   Updated: 2024/07/29 09:46:37 by elvallet         ###   ########.fr       */
+/*   Updated: 2024/08/02 11:37:42 by elvallet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,11 @@
 
 typedef enum e_msg
 {
-	FORK_MSG, EATING_MSG, SLEEPING_MSG, THINKING_MSG, DEAD_MSG
+	FORK_MSG,
+	EATING_MSG,
+	SLEEPING_MSG,
+	THINKING_MSG,
+	DEAD_MSG
 }			t_msg;
 
 typedef struct s_fork
@@ -47,7 +51,6 @@ typedef struct s_philo
 	int			*dead;
 	t_fork		*left_fork;
 	t_fork		right_fork;
-	int			*flag;
 }				t_philo;
 
 typedef struct s_data
@@ -61,7 +64,6 @@ typedef struct s_data
 	size_t		time_to_sleep;
 	int			meals_to_eat;
 	t_philo		**philos;
-	int			flag;
 }				t_data;
 
 /*EXIT.C*/
@@ -76,6 +78,7 @@ void	left_fork(t_data *data);
 
 /*MONITORING.C*/
 void	*monitoring(void *arg);
+int		is_finished(t_data *data);
 void	whos_eating(t_data *data);
 
 /*PHILO_ROUTINE.C*/

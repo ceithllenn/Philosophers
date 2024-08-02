@@ -6,7 +6,7 @@
 /*   By: elvallet <elvallet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/26 17:43:40 by elvallet          #+#    #+#             */
-/*   Updated: 2024/07/29 10:09:45 by elvallet         ###   ########.fr       */
+/*   Updated: 2024/08/02 11:39:20 by elvallet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,8 +17,6 @@ void	*philo_routine(void *arg)
 	t_philo	*philo;
 
 	philo = (t_philo *)arg;
-	while (!philo->flag)
-		usleep(1);
 	while (!philo->dead)
 	{
 		if (philo->eating_rd == 1)
@@ -38,6 +36,7 @@ void	*philo_routine(void *arg)
 
 void	eat(t_philo *philo)
 {
+	printf("eat : %d\n", philo->id);
 	philo->eating_rd = 2;
 	philo->last_meal = get_current_time() - philo->start;
 	while (philo->right_fork.flag && !philo->dead)
@@ -71,7 +70,7 @@ void	philo_sleep(t_philo *philo)
 	philo->eating_rd = 0;
 }
 
-int		is_alive(t_philo *philo)
+int	is_alive(t_philo *philo)
 {
 	size_t	curr;
 
@@ -79,6 +78,7 @@ int		is_alive(t_philo *philo)
 	if (curr >= philo->time_to_die)
 	{
 		philo_message(philo, DEAD_MSG);
+		*(philo->dead) = 1;
 		return (0);
 	}
 	else

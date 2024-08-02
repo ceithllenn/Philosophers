@@ -6,7 +6,7 @@
 /*   By: elvallet <elvallet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/23 08:58:45 by elvallet          #+#    #+#             */
-/*   Updated: 2024/07/29 09:47:53 by elvallet         ###   ########.fr       */
+/*   Updated: 2024/08/02 11:37:55 by elvallet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,6 @@ t_philo	*get_philo(t_data *data, t_philo *philo)
 	if (data->meals_to_eat)
 		philo->meals_to_eat = data->meals_to_eat;
 	philo->dead = &(data->dead_flag);
-	philo->flag = &(data->flag);
 	philo->meals_eaten = 0;
 	philo->finished = 0;
 	philo->eating_rd = 0;
@@ -47,7 +46,7 @@ t_philo	**init_philos(t_data *data)
 	t_philo	**philos;
 	int		i;
 
-	philos = malloc(sizeof(t_philo*) * data->nb_philos);
+	philos = malloc(sizeof(t_philo) * data->nb_philos);
 	if (!philos)
 		return (NULL);
 	i = 0;
@@ -56,7 +55,7 @@ t_philo	**init_philos(t_data *data)
 		philos[i] = malloc(sizeof(t_philo));
 		if (!philos[i])
 		{
-			// fonction pour free si ca merde
+			free_philo(data->philos);
 			return (NULL);
 		}
 		philos[i]->id = i + 1;
@@ -76,11 +75,13 @@ void	left_fork(t_data *data)
 	while (i < data->nb_philos)
 	{
 		if (i == 0)
-			data->philos[i]->left_fork = &(data->philos[data->nb_philos - 1]->right_fork);
+			data->philos[i]->left_fork
+				= &(data->philos[data->nb_philos - 1]->right_fork);
 		else if (data->nb_philos != 1)
 			data->philos[i]->left_fork = &(data->philos[i - 1]->right_fork);
-	if (pthread_create(&(data->philos[i]->thread), NULL, philo_routine, data->philos[i]))
-		return ;
+		if (pthread_create(&(data->philos[i]->thread),
+				NULL, philo_routine, data->philos[i]))
+			return ;
 	i++;
 	}
 }
@@ -88,7 +89,7 @@ void	left_fork(t_data *data)
 void	init(char **argv)
 {
 	t_data	*data;
-	
+
 	data = malloc(sizeof(t_data));
 	if (!data)
 		return ;
@@ -102,7 +103,6 @@ void	init(char **argv)
 	else
 		data->meals_to_eat = 0;
 	data->dead_flag = 0;
-	data->flag = 0;
 	data->philos = init_philos(data);
 	if (!data->philos)
 		return (free(data));
