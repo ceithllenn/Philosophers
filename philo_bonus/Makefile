@@ -1,7 +1,7 @@
-NAME = philo
+NAME = philo_bonus
 
 CC = cc
-FLAGS = -Wall -Wextra -Werror
+FLAGS = -Wall -Wextra -Werror -g3
 INCLUDES = -I .
 
 SRCS_DIR = src/
@@ -20,7 +20,8 @@ SRCS_PUSH = $(addprefix $(SRCS_DIR), $(MAIN))
 SRCS_CHECKER = $(addprefix $(SRCS_DIR), $(FUNC))
 
 OBJS_DIR = obj/
-OBJS = $(addprefix $(OBJS_DIR), $(notdir $(SRCS_CHECKER:.c=.o)))
+OBJS = $(addprefix $(OBJS_DIR), $(notdir $(SRCS_PUSH:.c=.o)))
+OBJS_BONUS = $(addprefix $(OBJS_DIR), $(notdir $(SRCS_CHECKER:.c=.o)))
 
 # Rule to compile .c files to .o files
 $(OBJS_DIR)%.o: $(SRCS_DIR)%.c

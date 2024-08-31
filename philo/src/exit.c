@@ -6,7 +6,7 @@
 /*   By: elvallet <elvallet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/27 10:21:05 by elvallet          #+#    #+#             */
-/*   Updated: 2024/07/29 09:32:46 by elvallet         ###   ########.fr       */
+/*   Updated: 2024/08/20 07:05:31 by elvallet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,15 +16,19 @@ void	ft_exit(t_data *data)
 {
 	int	i;
 
-	i = 0;
-	while (i < data->nb_philos)
+	i = 1;
+	while (i < data->philos[0]->nb_philos)
 	{
-		pthread_join(data->philos[i]->thread, NULL);
-		pthread_mutex_destroy(&(data->philos[i]->right_fork.mutex));
+		pthread_mutex_destroy(&data->forks[i]);
 		free(data->philos[i]);
 		i++;
 	}
+	pthread_mutex_destroy(&data->forks[0]);
+	free(data->philos[0]);
 	free(data->philos);
-	pthread_join(data->monitoring, NULL);
+	pthread_mutex_destroy(&data->dead_lock);
+	pthread_mutex_destroy(&data->write_lock);
+	pthread_mutex_destroy(&data->meal_lock);
+	free(data->forks);
 	free(data);
 }

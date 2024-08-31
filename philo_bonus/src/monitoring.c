@@ -5,24 +5,46 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: elvallet <elvallet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/07/27 09:45:54 by elvallet          #+#    #+#             */
-/*   Updated: 2024/08/31 10:49:29 by elvallet         ###   ########.fr       */
+/*   Created: 2024/08/21 10:59:29 by elvallet          #+#    #+#             */
+/*   Updated: 2024/08/31 11:12:30 by elvallet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/philo.h"
+#include "../includes/philo_bonus.h"
 
 void	*monitoring(void *arg)
 {
-	t_data	*data;
+	t_philo	*philo;
 
-	data = (t_data *)arg;
+	philo = (t_philo *)arg;
 	while (1)
 	{
+		sem_wait(philo->end);
+		if (*philo->stop)
+		{
+			sem_post(philo->end);
+			break ;
+		}
+		sem_post(philo->end);
 		ft_usleep(1);
-		if (is_over(data->philos) || ft_dead_flag(data->philos))
+		if (is_dead(philo, philo->time_to_die) || is_over(philo))
 			break ;
 	}
+	return (arg);
+}
+
+void	*death_monitor(void *arg)
+{
+	t_philo	*philo;
+
+	philo = (t_philo *)arg;
+	ft_usleep(philo->time_to_die - 10);
+	sem_wait(philo->dead);
+	philo->dead_flag = 1;
+	sem_post(philo->dead);
+	sem_wait(philo->end);
+	*philo->stop = 1;
+	sem_post(philo->end);
 	return (arg);
 }
 
@@ -30,13 +52,18 @@ void	philo_message(t_philo *philo, t_msg msg)
 {
 	size_t	curr;
 
-	pthread_mutex_lock(philo->write_lock);
 	curr = get_current_time() - philo->start;
+	sem_wait(philo->write);
 	if (msg == DEAD_MSG)
 		printf("%ld %d died\n", curr, philo->id);
-	else if (dead_loop(philo))
-		return ;
-	else if (msg == FORK_MSG)
+	else
+	{
+		sem_wait(philo->end);
+		if (*philo->stop)
+			return ((void)sem_post(philo->end));
+		sem_post(philo->end);
+	}
+	if (msg == FORK_MSG)
 		printf("%ld %d has taken a fork\n", curr, philo->id);
 	else if (msg == EATING_MSG)
 		printf("%ld %d is eating\n", curr, philo->id);
@@ -44,64 +71,36 @@ void	philo_message(t_philo *philo, t_msg msg)
 		printf("%ld %d is sleeping\n", curr, philo->id);
 	else if (msg == THINKING_MSG)
 		printf("%ld %d is thinking\n", curr, philo->id);
-	pthread_mutex_unlock(philo->write_lock);
+	sem_post(philo->write);
 }
 
 int	is_dead(t_philo *philo, size_t time_to_die)
 {
-	pthread_mutex_lock(philo->meal_lock);
+	sem_wait(philo->meal);
 	if (get_current_time() - philo->last_meal >= time_to_die)
 	{
-		pthread_mutex_unlock(philo->meal_lock);
+		philo_message(philo, DEAD_MSG);
+		sem_wait(philo->end);
+		*philo->stop = 1;
+		sem_post(philo->end);
 		return (1);
 	}
-	pthread_mutex_unlock(philo->meal_lock);
+	sem_post(philo->meal);
 	return (0);
 }
 
-int	ft_dead_flag(t_philo **philos)
+int	is_over(t_philo *philo)
 {
-	int	i;
-
-	i = 0;
-	while (i < philos[0]->nb_philos)
+	sem_wait(philo->meal);
+	if (philo->meals_eaten == philo->meals_to_eat)
 	{
-		if (is_dead(philos[i], philos[i]->time_to_die))
-		{
-			philo_message(philos[i], DEAD_MSG);
-			pthread_mutex_lock(philos[i]->dead_lock);
-			*philos[i]->dead = 1;
-			pthread_mutex_unlock(philos[i]->dead_lock);
-			return (1);
-		}
-		i++;
-	}
-	return (0);
-}
-
-int	is_over(t_philo **philos)
-{
-	int	i;
-	int	done;
-
-	i = 0;
-	done = 0;
-	if (philos[i]->meals_to_eat == -1)
-		return (0);
-	while (i < philos[0]->nb_philos)
-	{
-		pthread_mutex_lock(philos[i]->meal_lock);
-		if (philos[i]->meals_eaten >= philos[i]->meals_to_eat)
-			done++;
-		pthread_mutex_unlock(philos[i]->meal_lock);
-		i++;
-	}
-	if (done == philos[0]->nb_philos)
-	{
-		pthread_mutex_lock(philos[0]->dead_lock);
-		*philos[0]->dead = 1;
-		pthread_mutex_unlock(philos[0]->dead_lock);
+		philo->done = 1;
+		sem_wait(philo->end);
+		*philo->stop = 1;
+		sem_post(philo->end);
+		sem_post(philo->meal);
 		return (1);
 	}
+	sem_post(philo->meal);
 	return (0);
 }

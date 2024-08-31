@@ -5,12 +5,12 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: elvallet <elvallet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/07/23 07:32:11 by elvallet          #+#    #+#             */
-/*   Updated: 2024/08/29 14:03:27 by elvallet         ###   ########.fr       */
+/*   Created: 2024/08/20 07:48:01 by elvallet          #+#    #+#             */
+/*   Updated: 2024/08/29 14:05:02 by elvallet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/philo.h"
+#include "../includes/philo_bonus.h"
 
 int	main(int argc, char **argv)
 {

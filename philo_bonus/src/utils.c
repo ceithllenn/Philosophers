@@ -5,12 +5,12 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: elvallet <elvallet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/07/23 08:56:58 by elvallet          #+#    #+#             */
-/*   Updated: 2024/08/20 07:27:13 by elvallet         ###   ########.fr       */
+/*   Created: 2024/08/20 07:49:09 by elvallet          #+#    #+#             */
+/*   Updated: 2024/08/20 09:08:18 by elvallet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/philo.h"
+#include "../includes/philo_bonus.h"
 
 void	free_philo(t_philo **philo)
 {
@@ -19,7 +19,6 @@ void	free_philo(t_philo **philo)
 	i = 0;
 	while (philo[i])
 	{
-		pthread_mutex_destroy(philo[i]->r_fork);
 		free(philo[i]);
 		i++;
 	}
@@ -59,11 +58,4 @@ int	ft_atoi(const char *nptr)
 		i++;
 	}
 	return (n);
-}
-
-int	solo_philo(t_philo *philo)
-{
-	ft_usleep(philo->time_to_die);
-	pthread_mutex_unlock(philo->r_fork);
-	return (0);
 }
