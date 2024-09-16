@@ -6,7 +6,7 @@
 /*   By: elvallet <elvallet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/20 07:46:56 by elvallet          #+#    #+#             */
-/*   Updated: 2024/08/31 11:18:09 by elvallet         ###   ########.fr       */
+/*   Updated: 2024/09/04 08:22:42 by elvallet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,14 +43,12 @@ typedef struct s_philo
 	int			meals_eaten;
 	int			nb_philos;
 	int			done;
-	int			*stop;
 	size_t		start;
 	size_t		last_meal;
 	size_t		time_to_die;
 	size_t		time_to_eat;
 	size_t		time_to_sleep;
 	int			meals_to_eat;
-	sem_t		*end;
 	sem_t		*meal;
 	sem_t		*forks;
 	sem_t		*dead;
@@ -59,9 +57,7 @@ typedef struct s_philo
 
 typedef struct s_prog
 {
-	int		stop;
 	t_philo	**philos;
-	sem_t	*end;
 	sem_t	*meal;
 	sem_t	*forks;
 	sem_t	*dead;

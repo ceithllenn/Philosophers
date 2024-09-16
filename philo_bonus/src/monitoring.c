@@ -6,7 +6,7 @@
 /*   By: elvallet <elvallet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/21 10:59:29 by elvallet          #+#    #+#             */
-/*   Updated: 2024/08/31 11:12:30 by elvallet         ###   ########.fr       */
+/*   Updated: 2024/09/04 09:01:15 by elvallet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,32 +19,10 @@ void	*monitoring(void *arg)
 	philo = (t_philo *)arg;
 	while (1)
 	{
-		sem_wait(philo->end);
-		if (*philo->stop)
-		{
-			sem_post(philo->end);
-			break ;
-		}
-		sem_post(philo->end);
-		ft_usleep(1);
 		if (is_dead(philo, philo->time_to_die) || is_over(philo))
 			break ;
+		ft_usleep(1);
 	}
-	return (arg);
-}
-
-void	*death_monitor(void *arg)
-{
-	t_philo	*philo;
-
-	philo = (t_philo *)arg;
-	ft_usleep(philo->time_to_die - 10);
-	sem_wait(philo->dead);
-	philo->dead_flag = 1;
-	sem_post(philo->dead);
-	sem_wait(philo->end);
-	*philo->stop = 1;
-	sem_post(philo->end);
 	return (arg);
 }
 
@@ -58,10 +36,10 @@ void	philo_message(t_philo *philo, t_msg msg)
 		printf("%ld %d died\n", curr, philo->id);
 	else
 	{
-		sem_wait(philo->end);
-		if (*philo->stop)
-			return ((void)sem_post(philo->end));
-		sem_post(philo->end);
+		sem_wait(philo->dead);
+		if (philo->dead_flag)
+			return ((void)sem_post(philo->dead), (void)sem_post(philo->write));
+		sem_post(philo->dead);
 	}
 	if (msg == FORK_MSG)
 		printf("%ld %d has taken a fork\n", curr, philo->id);
@@ -80,9 +58,10 @@ int	is_dead(t_philo *philo, size_t time_to_die)
 	if (get_current_time() - philo->last_meal >= time_to_die)
 	{
 		philo_message(philo, DEAD_MSG);
-		sem_wait(philo->end);
-		*philo->stop = 1;
-		sem_post(philo->end);
+		sem_wait(philo->dead);
+		philo->dead_flag = 1;
+		sem_post(philo->dead);
+		sem_post(philo->meal);
 		return (1);
 	}
 	sem_post(philo->meal);
@@ -95,9 +74,9 @@ int	is_over(t_philo *philo)
 	if (philo->meals_eaten == philo->meals_to_eat)
 	{
 		philo->done = 1;
-		sem_wait(philo->end);
-		*philo->stop = 1;
-		sem_post(philo->end);
+		sem_wait(philo->dead);
+		philo->dead_flag = 1;
+		sem_post(philo->dead);
 		sem_post(philo->meal);
 		return (1);
 	}

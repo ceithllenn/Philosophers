@@ -6,7 +6,7 @@
 /*   By: elvallet <elvallet@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/20 07:53:18 by elvallet          #+#    #+#             */
-/*   Updated: 2024/08/31 11:19:23 by elvallet         ###   ########.fr       */
+/*   Updated: 2024/09/04 08:53:56 by elvallet         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,12 +44,10 @@ t_philo	*get_philo(t_prog *prog, t_philo *philo, char **argv)
 	philo->meals_eaten = 0;
 	philo->dead_flag = 0;
 	philo->done = 0;
-	philo->stop = &prog->stop;
 	philo->forks = prog->forks;
 	philo->meal = prog->meal;
 	philo->dead = prog->dead;
 	philo->write = prog->write;
-	philo->end = prog->end;
 	return (philo);
 }
 
@@ -86,13 +84,10 @@ void	init(char **argv)
 	sem_unlink("/sem_forks");
 	sem_unlink("/sem_dead");
 	sem_unlink("/sem_write");
-	sem_unlink("/sem_end");
 	prog->forks = sem_open("/sem_forks", O_CREAT, 0644, ft_atoi(argv[1]));
-	prog->end = sem_open("/sem_end", O_CREAT, 0644, 1);
 	prog->meal = sem_open("/sem_meal", O_CREAT, 0644, 1);
-	prog->dead = sem_open("/sem_dead", O_CREAT, 0644, 1);
+	prog->dead = sem_open("/sem_dead", O_CREAT, 0644, ft_atoi(argv[1]));
 	prog->write = sem_open("/sem_write", O_CREAT, 0644, 1);
-	prog->stop = 0;
 	prog->philos = init_philos(prog, argv);
 	if (!prog->philos)
 		return (free(prog));

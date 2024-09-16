@@ -1,13 +1,12 @@
 NAME = philo_bonus
 
 CC = cc
-FLAGS = -Wall -Wextra -Werror -g3
+FLAGS = -Wall -Wextra -Werror -MMD
 INCLUDES = -I .
 
 SRCS_DIR = src/
 
-
-FUNC =	arguments.c \
+FUNC =  arguments.c \
 		exit.c \
 		init.c \
 		monitoring.c \
@@ -17,25 +16,25 @@ FUNC =	arguments.c \
 MAIN = main.c $(FUNC)
 
 SRCS_PUSH = $(addprefix $(SRCS_DIR), $(MAIN))
-SRCS_CHECKER = $(addprefix $(SRCS_DIR), $(FUNC))
 
 OBJS_DIR = obj/
 OBJS = $(addprefix $(OBJS_DIR), $(notdir $(SRCS_PUSH:.c=.o)))
-OBJS_BONUS = $(addprefix $(OBJS_DIR), $(notdir $(SRCS_CHECKER:.c=.o)))
 
-# Rule to compile .c files to .o files
+DEPS = $(OBJS:.o=.d)
+
+# Rule to compile .c files to .o files and generate dependency files
 $(OBJS_DIR)%.o: $(SRCS_DIR)%.c
 	@mkdir -p $(OBJS_DIR)
 	@echo "Compiling $< to $@"
 	$(CC) $(FLAGS) $(INCLUDES) -c $< -o $@
 
 # Rule to create the final executable
-$(NAME): $(OBJS) 
+$(NAME): $(OBJS)
 	@echo "Linking $(NAME)"
 	$(CC) $(FLAGS) $(OBJS) -o $(NAME)
-	
-# Clean object files
-clean: 
+
+# Clean object files and dependency files
+clean:
 	rm -rf $(OBJS_DIR)
 
 # Full clean
@@ -49,3 +48,6 @@ re: fclean all
 all: $(NAME)
 
 .PHONY: all clean fclean re
+
+# Include dependency files
+-include $(DEPS)
